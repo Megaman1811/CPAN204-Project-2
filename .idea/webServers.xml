@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d634eafc-6e42-4e36-a5fe-3e6ffe96c081" name="Kenny" url="http://localhost/CPAN204/CPAN204-Project-2">
+        <fileTransfer port="0" mountedRoot="C:\xampp\htdocs\CPAN204\CPAN204-Project-2" accessType="MOUNT" />
+      </webServer>
+    </option>
+  </component>
+</project>
