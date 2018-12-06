@@ -23,35 +23,78 @@ if (isset($_POST['INSERT'])) {
     $Interested_vacation_plan = mysqli_real_escape_string($con, $_POST['interested_vacation_plan']);
     $Date = mysqli_real_escape_string($con, $_POST['date']);
 
-    $queryselect = "SELECT groupId FROM useraccount WHERE interestedvacationplanId = '$Interested_vacation_plan' AND date = '$Date'";
+    $queryselect = "SELECT DISTINCT groupId FROM useraccount WHERE interestedvacationplanId = '$Interested_vacation_plan' AND date = '$Date'";
     $resultselect = mysqli_query($con, $queryselect) or die ("query is failed" . mysqli_error($con));
 
-    if (($row = mysqli_fetch_row($resultselect)) == false){
 
-        $GroupId = rand(1, 10);
-
-        echo $GroupId;
-        echo "check";
+    if (($row = mysqli_fetch_row($resultselect)) == false) {
+        $GroupId = 1;
         $queryselectall = "SELECT groupId FROM useraccount";
         $resultselectall = mysqli_query($con, $queryselectall) or die ("query is failed" . mysqli_error($con));
-        while (($row = mysqli_fetch_row($resultselectall)) == true){
-            while($GroupId == $row[0]){
-                $GroupId = rand(1, 10);
+        while ($rows = mysqli_fetch_row($resultselectall)) {
+            if ($rows[0] == $GroupId) {
+                $GroupId = $GroupId + 1;
+            }
+        }
+
+    } else {
+        do {
+
+
+            echo "same tour location $row[0] <br>";
+
+            $querya = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$row[0]'";
+            $resulta = mysqli_query($con, $querya) or die ("query is failed" . mysqli_error($con));
+
+
+            $queryb = "SELECT groupSize FROM groupinfo WHERE groupId = '$row[0]'";
+            $resultb = mysqli_query($con, $queryb) or die ("query is failed" . mysqli_error($con));
+            if ($rowa = mysqli_fetch_row($resulta)) {
+
+                echo "member $rowa[0] <br>";
+                if ($rowb = mysqli_fetch_row($resultb)) {
+                    echo "size $rowb[0] <br>";
+                    if ((($rowa[0] < $rowb[0]) && ($rowb[0] != NULL))) {
+
+                        $GroupId = $row[0];
+                        echo "tel: $GroupId";
+                        break;
+                    } else if (($rowb[0] == NULL)) {
+                        $GroupId = $row[0];
+                    } else {
+                        echo "else $GroupId <br>";
+                    }
+                }
+
+
             }
 
+
         }
+
+
+        while ($row = mysqli_fetch_row($resultselect));
+
+        if ($GroupId == null) {
+            $GroupId = 1;
+            $queryselectall = "SELECT groupId FROM useraccount";
+            $resultselectall = mysqli_query($con, $queryselectall) or die ("query is failed" . mysqli_error($con));
+            while ($rows = mysqli_fetch_row($resultselectall)) {
+                if ($rows[0] == $GroupId) {
+                    $GroupId = $GroupId + 1;
+                }
+            }
+        }
+
     }
-    else {
+    echo "Final $GroupId <br>";
 
-            $GroupId = $row[0];
-            echo $GroupId;
-            echo "test";
-        }
-
-
-
-
-
+    $querys = "Select groupId FROM groupinfo WHERE groupId = '$GroupId'";
+    $results = mysqli_query($con, $querys) or die ("query is failed" . mysqli_error($con));
+    if ($rows = mysqli_fetch_row($results) == false) {
+        $queryi = "Insert Into groupinfo Values('$GroupId', NULL)";
+        $resulti = mysqli_query($con, $queryi) or die ("query is failed" . mysqli_error($con));
+    }
 
     $query = "Insert Into useraccount(email, name, address, interestedvacationplanId, groupId, date) Values('$Email','$Name','$Address','$Interested_vacation_plan','$GroupId','$Date')";
     $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
@@ -60,12 +103,22 @@ if (isset($_POST['INSERT'])) {
         $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
         if (($row = mysqli_fetch_row($result)) == true) {
             $RegistrationId = $row[0];
-
             echo "<script> alert ('$RegistrationId');</script>";
         } else {
             echo "<script> alert ('You have not inserted any rows');</script>";
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 }
 ?>
 
@@ -80,11 +133,11 @@ if (isset($_POST['INSERT'])) {
 <h1>Registration Page</h1>
 <form method="post">
     <label>Email: </label>
-    <input type="text" placeholder="Email" name="email" required><br><br>
+    <input type="text" placeholder="Email" name="email" ><br><br>
     <label>Name: </label>
-    <input type="text" placeholder="Name" name="name" required><br><br>
+    <input type="text" placeholder="Name" name="name" ><br><br>
     <label>Address: </label>
-    <input type="text" placeholder="Address" name="address" required><br><br>
+    <input type="text" placeholder="Address" name="address"><br><br>
     <label>Interested Vacation Plan</label>
     <select name="interested_vacation_plan" required>
         <option value="">None</option>
