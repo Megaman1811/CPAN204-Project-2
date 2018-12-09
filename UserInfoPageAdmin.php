@@ -1,59 +1,53 @@
 <?php
-//Making sure that the current user is an admin by using session
-session_start();
-if (!isset($_SESSION["User"])) {
-    header('location:login.php');
-    exit;
-}
-if ($_SESSION["User"] != "Guest") {
-    header('location:login.php');
-    exit;
-}
-
 $host = "localhost";
 $user = "root";
 $password = "";
 $dbName = "travel_project";
-$RegistrationId = $_SESSION['registrationId'];
-$Email = $_SESSION['email'];
+
+
+$RegistrationId = '';
+$Email = '';
 $Name = '';
 $Address = '';
 $Interested_vacation_plan = '';
 $GroupId = '';
 $Date = '' ;
 $Status = '';
-$MembersName = '';
 
 $con = mysqli_connect($host, $user, $password, $dbName)
 or die("Connection is failed");
 
-if(isset($_POST['name']) && isset($_POST['address'])&& isset($_POST['interested_vacation_plan'])&& isset($_POST['groupId'])&& isset($_POST['date'])&& isset($_POST['status'])&& isset($_POST['address'])&& isset($_POST['membersName'])) {
-    $Name = mysqli_real_escape_string($con, $_POST['name']);
-    $Address = mysqli_real_escape_string($con, $_POST['address']);
-    $Interested_vacation_plan = mysqli_real_escape_string($con, $_POST['interested_vacation_plan']);
-    $GroupId = mysqli_real_escape_string($con, $_POST['groupId']);
-    $Date = mysqli_real_escape_string($con, $_POST['date']);
-    $Status = mysqli_real_escape_string($con, $_POST['status']);
-    $MembersName = mysqli_real_escape_string($con, $_POST['membersName']);
+
+if (isset($_POST['FIND'])) {
+    if (!empty(mysqli_real_escape_string($con, $_POST['registrationId']))) {
+        $RegistrationId = mysqli_real_escape_string($con, $_POST['registrationId']);
+        $Interested_vacation_plan = mysqli_real_escape_string($con, $_POST['interested_vacation_plan']);
+        $Date = mysqli_real_escape_string($con, $_POST['date']);
+        $query = "Select * from useraccount where registrationId = '$RegistrationId'";
+        $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
+        if (($row = mysqli_fetch_row($result)) == true) {
+            $RegistrationId = $row[0];
+            $Name = $row[1];
+            $Email = $row[2];
+            $Address = $row[3];
+            $Interested_vacation_plan = $row[4];
+            $Date = $row[5];
+            $GroupId = $row[6];
+            $Status = $row[7];
+        } else echo "<script> alert ('Record not found !! Find failed');</script>";
+    } else echo "<script> alert ('Please fill up Registration ID field to search');</script>";
 }
 
-$query = "SELECT * FROM useraccount WHERE email = '$Email' AND registrationId = '$RegistrationId'";
-$result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
-        if (($row = mysqli_fetch_row($result)) == true) {
-            $query_tour = "SELECT tourName FROM interestedvacationplan WHERE tourId = '$row[4]'";
-            $result_tour = mysqli_query($con, $query_tour) or die ("query is failed" . mysqli_error($con));
-            if (($row_tour = mysqli_fetch_row($result_tour)) == true) {
-                $RegistrationId = $row[0];
-                $Name = $row[1];
-                $Email = $row[2];
-                $Address = $row[3];
-                $Interested_vacation_plan = $row_tour[0];
-                $Date = $row[5];
-                $GroupId = $row[6];
-                $Status = $row[7];
-            }
-        }
-        else echo "<script> alert ('Record not found !! Find failed');</script>";
+
+
+
+
+
+
+
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -88,36 +82,50 @@ $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($c
 echo "<table class=\"table table-bordered\">";
 echo "<thead class=\"thead-dark\"><tr><th scope='col'>Registration ID </th><th scope='col'>Name</th><th scope='col'>Email</th><th scope='col'>Address</th><th scope='col'>Tour Id</th><th scope='col'>Date</th><th scope='col'>GroupId</th><th scope='col'>Status</th></tr></thead>";
 while (($row = mysqli_fetch_row($result)) == true) {
-echo "<tr><td>$row[0]</td><td>$row[2]</td><td>$row[2]</td><td>$row[3]</td><td>$row[4]</td><td>$row[5]</td><td>$row[6]</td><td>$row[7]</td></tr>";
+    echo "<tr><td>$row[0]</td><td>$row[2]</td><td>$row[2]</td><td>$row[3]</td><td>$row[4]</td><td>$row[5]</td><td>$row[6]</td><td>$row[7]</td></tr>";
 }
 echo "</table><br><br>";
 ?>
 <form method="post" align="center">
     <label>Registration Id: </label>
-    <input type="text" placeholder="Registration Id" name="registrationId" value="<?php echo $RegistrationId ; ?>"><br><br>
+    <input type="text" placeholder="Registration Id" name="registrationId"
+           value="<?php echo $RegistrationId; ?>"><br><br>
     <label>Email: </label>
     <input type="text" placeholder="Email" name="email" value="<?php echo $Email; ?>"><br><br>
     <label>Name: </label>
     <input type="text" placeholder="Name" name="name" value="<?php echo $Name; ?>"><br><br>
     <label>Address: </label>
-    <input type="text" placeholder="Address" name="address" value="<?php echo  $Address; ?>"><br><br>
+    <input type="text" placeholder="Address" name="address" value="<?php echo $Address; ?>"><br><br>
     <label>Interested Vacation Plan</label>
-    <input type="text" placeholder="Interested Vacation Plan" name="interested_vacation_plan" value="<?php echo $Interested_vacation_plan; ?>"><br><br>
+    <input type="text" placeholder="Interested Vacation Plan" name="interested_vacation_plan"
+           value="<?php echo $Interested_vacation_plan; ?>"><br><br>
     <label>Date: </label>
     <input type="date" placeholder="Date" name="date" value="<?php echo $Date; ?>"><br><br>
     <label>Group Id: </label>
-    <input type="text" placeholder="GroupId" name="groupId" value="<?php echo $GroupId; ?>"><br><br>
+    <select name="groupId">
+        <option value="">None</option>
+        <?php
+        if (isset($_POST['FIND'])) {
+            $queryid = "Select interestedvacationplanId,date from useraccount where registrationId = '$RegistrationId'";
+            $resultid = mysqli_query($con, $queryid) or die ("query is failed" . mysqli_error($con));
+            if (($rowid = mysqli_fetch_row($resultid)) == true) {
+                $queryreturn = "SELECT DISTINCT groupId FROM useraccount WHERE interestedvacationplanId = '$Interested_vacation_plan' AND date = '$Date'";
+                $resultreturn = mysqli_query($con, $queryreturn) or die ("query is failed" . mysqli_error($con));
+                while ($rowreturn = mysqli_fetch_row($resultreturn)) {
+                    if ($GroupId == $rowreturn[0]) {
+                        echo "<option selected value=$rowreturn[0]> " . $rowreturn[0] . "</option>";
+                    } else {
+                        echo "<option value=$rowreturn[0]> " . $rowreturn[0] . "</option>";
+                    }
+                }
+            }
+        }
+        ?>
+    </select><br><br>
     <label>Status: </label>
     <input type="text" placeholder="Status" name="status" value="<?php echo $Status; ?>"><br><br>
-    <label>Group Member Name: </label><br>
-    <textarea rows="10" cols="50" placeholder="Group member name" name="membersName"><?php $query = "SELECT email FROM useraccount WHERE groupId = '$GroupId'";
-        $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
-        while ($row = mysqli_fetch_row($result))
-        {
-            $MembersName = $row[0];
-            echo $MembersName;
-            echo "\n";
-        }?></textarea><br><br>
+    <input type="submit" class="btn btn-warning" value="Find" name="FIND"/>
+    <input type="submit" class="btn btn-success" value="Update" name="UPDATE"/>
 
 </form>
 </body>

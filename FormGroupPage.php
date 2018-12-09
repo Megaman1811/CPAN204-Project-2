@@ -55,131 +55,132 @@ if (isset($_POST['UPDATE'])) {
     $OldGroupId = $GroupId;
 
 
-    $querya = "SELECT COUNT(email) FROM useraccount WHERE groupId = '$GroupId'";
-    $resulta = mysqli_query($con, $querya) or die ("query is failed" . mysqli_error($con));
+    $querycount = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$GroupId'";
+    $resultcount = mysqli_query($con, $querycount) or die ("query is failed" . mysqli_error($con));
 
-    if ($rowa = mysqli_fetch_row($resulta)) {
-        if (($GroupSize < $rowa[0]) && ($GroupSize != NULL)) {
+    if ($rowcount = mysqli_fetch_row($resultcount)) {
+        if (($GroupSize < $rowcount[0]) && ($GroupSize != NULL)) {
+            $NumMove =  $rowcount[0] - $GroupSize;
+            echo $NumMove;
             $queryselect = "SELECT DISTINCT groupId FROM useraccount WHERE interestedvacationplanId = '$Interested_vacation_plan' AND date = '$Date'";
-            $resultselect = mysqli_query($con, $queryselect) or die ("query is failed" . mysqli_error($con));
+            $resultselect = mysqli_query($con, $queryselect) or die ("query is failed 1" . mysqli_error($con));
 
-            while (($rowexist = mysqli_fetch_row($resultselect)) == true) {
-                echo "Group exist: $rowexist[0] <br><br>";
+            while ($rowselect = mysqli_fetch_row(($resultselect)) == true) {
 
+                echo "Same Group: $rowselect[0] ";
 
-                $querysize = "SELECT groupSize FROM groupinfo WHERE groupId = '$rowexist[0]'";
-                $resultsize = mysqli_query($con, $querysize) or die ("query is failed" . mysqli_error($con));
+                $querysize = "SELECT groupSize FROM groupinfo WHERE groupId = 2";
+                $resultsize = mysqli_query($con, $querysize) or die ("query is failed 2" . mysqli_error($con));
 
-                $querycheckcount = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$rowexist[0]'";
-                $resultcheckcount = mysqli_query($con, $querycheckcount) or die ("query is failed" . mysqli_error($con));
+                if ($rowsize = mysqli_fetch_row($resultsize)) {
+                    echo "Size of group same: $rowsize[0]<br><br>";
+                    if ($NumMove > $rowsize[0]) {
+                        // Do something
+                    } else {
+                        $querycountmember = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$rowselect[0]'";
+                        $resultquerymember = mysqli_query($con, $querycountmember) or die ("query is failed" . mysqli_error($con));
+                        if ($rowcountmember = mysqli_fetch_row($resultquerymember)) {
+                            $availablesize = $rowsize[0] - $rowcountmember[0];
+                            $times = 0;
+                            while ($times < $availablesize) {
+                                $queryid = "SELECT registrationId FROM useraccount WHERE groupId = '$rowselect[0]' LIMIT $availablesize";
+                                $selectid = mysqli_query($con, $queryid) or die ("query is failed " . mysqli_error($con));
+                                if ($rowid = mysqli_fetch_row($selectid)) {
+                                    $queryupdate = "UPDATE useraccount SET groupId = '$rowselect[0]' WHERE registrationId = '$rowid[0]'";
+                                    $resultupadate = mysqli_query($con, $queryupdate) or die ("query is failed" . mysqli_error($con));
+                                    if (mysqli_affected_rows($con) > 0) {
+                                        $NumMove - 1;
 
-                if ($rowcount = mysqli_fetch_row($resultcheckcount)) {
-                    echo "count numm: $rowcount[0] <br><br>";
-                    if ($rowsize = mysqli_fetch_row($resultsize)) {
-                        echo "size: $rowsize[0] <br><br>";
-                        if (($rowcount[0] > $rowsize[0]) && ($rowsize[0] != NULL)) {
+                                        $alertupdated = "You have updated tt " . mysqli_affected_rows($con) . " row";
+                                        echo "<script> alert ('$alertupdated');</script>";
+                                    } else {
+                                        echo "<script> alert('You have not updated any rows tt');</script>";
+                                    }
 
-                            $GroupId = $rowexist[0];
-
-                        } else if (($rowsize[0] == NULL)) {
-                            $GroupId = $rowexist[0];
-
-
-                        } else {
-                            $querycheckcount2 = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$GroupId'";
-                            $resultcheckcount2 = mysqli_query($con, $querycheckcount2) or die ("query is failed" . mysqli_error($con));
-                            if ($rowcount2 = mysqli_fetch_row($resultcheckcount2)) {
-                                if ($rowcount2[0] > $rowcount[0]) {
-                                    $GroupId = $rowexist[0];
                                 }
+                                $times++;
                             }
-
                         }
-
 
                     }
 
-
-                }
-
-
-                if ($GroupId == null) {
-                    $GroupId = 1;
-                    $queryselectall = "SELECT groupId FROM useraccount";
-                    $resultselectall = mysqli_query($con, $queryselectall) or die ("query is failed" . mysqli_error($con));
-                    while ($rows = mysqli_fetch_row($resultselectall)) {
-                        if ($rows[0] == $GroupId) {
-                            $GroupId = $GroupId + 1;
-                        }
-                    }
                 }
             }
-            echo "Final try $GroupId";
 
-            echo $rowa[0];
-            echo $GroupSize;
-
-            echo "count: $rowa[0] <br>";
-            $MemberMove = $rowa[0] - $GroupSize;
-            echo "Moving member $MemberMove <br>";
-
-            $querys = "SELECT registrationId FROM useraccount WHERE groupId = '$OldGroupId' LIMIT $MemberMove";
-            $selects = mysqli_query($con, $querys) or die ("query is failed blah blah" . mysqli_error($con));
-            while ($row = mysqli_fetch_row($selects)) {
-                $queryu = "UPDATE useraccount SET groupId = '$GroupId' WHERE registrationId = '$row[0]'";
-                $resultu = mysqli_query($con, $queryu) or die ("query is failed" . mysqli_error($con));
-                if (mysqli_affected_rows($con) > 0) {
-
-                    echo "test Group Id: $GroupId";
-                    echo "test Registration ID $row[0]";
-                    $alertupdated = "You have updated tt " . mysqli_affected_rows($con) . " row";
-                    echo "<script> alert ('$alertupdated');</script>";
-                } else {
-                    echo "<script> alert('You have not updated any rows tt');</script>";
-                }
-
-
-                $queryselects = "SELECT groupSize from groupinfo where groupId = '$GroupId'";
-                $resultselects = mysqli_query($con, $queryselects) or die ("query is failed" . mysqli_error($con));
-
-                if ($rowsl = mysqli_fetch_row($resultselects) == true) {
-                    $querycheckcount3 = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$row[0]'";
-                    $resultcheckcount3 = mysqli_query($con, $querycheckcount3) or die ("query is failed" . mysqli_error($con));
-                    if ($rowcount3 = mysqli_fetch_row($resultcheckcount3)) {
-                        if ($rowcount3[0] < $rowsl[0]) {
-
-                        }
-
-                    }
-
-
-                }
-
-
-
-            }
-
-
-
-
-
-
+            echo $NumMove;
 
         }
-
     }
 
-    /* echo "count: $rowa[0] <br>";
+
+     while (($rowexist = mysqli_fetch_row($resultselect)) == true) {
+         echo "Group exist: $rowexist[0] <br><br>";
+
+
+         $querysize = "SELECT groupSize FROM groupinfo WHERE groupId = '$rowexist[0]'";
+         $resultsize = mysqli_query($con, $querysize) or die ("query is failed" . mysqli_error($con));
+
+         $querycheckcount = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$rowexist[0]'";
+         $resultcheckcount = mysqli_query($con, $querycheckcount) or die ("query is failed" . mysqli_error($con));
+
+         if ($rowcount = mysqli_fetch_row($resultcheckcount)) {
+             echo "count numm: $rowcount[0] <br><br>";
+             if ($rowsize = mysqli_fetch_row($resultsize)) {
+                 echo "size: $rowsize[0] <br><br>";
+                 if (($rowcount[0] > $rowsize[0]) && ($rowsize[0] != NULL)) {
+
+
+                     $GroupId = $rowexist[0];
+
+                 } else if (($rowsize[0] == NULL)) {
+                     $GroupId = $rowexist[0];
+
+
+                 } else {
+                     $querycheckcount2 = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$GroupId'";
+                     $resultcheckcount2 = mysqli_query($con, $querycheckcount2) or die ("query is failed" . mysqli_error($con));
+                     if ($rowcount2 = mysqli_fetch_row($resultcheckcount2)) {
+                         if ($rowcount2[0] > $rowcount[0]) {
+                             $GroupId = $rowexist[0];
+                         }
+                     }
+
+                 }
+
+
+             }
+
+
+         }
+
+
+         if ($GroupId == null) {
+             $GroupId = 1;
+             $queryselectall = "SELECT groupId FROM useraccount";
+             $resultselectall = mysqli_query($con, $queryselectall) or die ("query is failed" . mysqli_error($con));
+             while ($rows = mysqli_fetch_row($resultselectall)) {
+                 if ($rows[0] == $GroupId) {
+                     $GroupId = $GroupId + 1;
+                 }
+             }
+         }
+     }
+     echo "Final try $GroupId";
+
+     echo $rowa[0];
+     echo $GroupSize;
+
+     echo "count: $rowa[0] <br>";
      $MemberMove = $rowa[0] - $GroupSize;
      echo "Moving member $MemberMove <br>";
 
      $querys = "SELECT registrationId FROM useraccount WHERE groupId = '$OldGroupId' LIMIT $MemberMove";
      $selects = mysqli_query($con, $querys) or die ("query is failed blah blah" . mysqli_error($con));
      while ($row = mysqli_fetch_row($selects)) {
-         echo $row[0];
          $queryu = "UPDATE useraccount SET groupId = '$GroupId' WHERE registrationId = '$row[0]'";
          $resultu = mysqli_query($con, $queryu) or die ("query is failed" . mysqli_error($con));
          if (mysqli_affected_rows($con) > 0) {
+
              echo "test Group Id: $GroupId";
              echo "test Registration ID $row[0]";
              $alertupdated = "You have updated tt " . mysqli_affected_rows($con) . " row";
@@ -189,49 +190,33 @@ if (isset($_POST['UPDATE'])) {
          }
 
 
-     }*/
+         $queryselects = "SELECT groupSize from groupinfo where groupId = '$GroupId'";
+         $resultselects = mysqli_query($con, $queryselects) or die ("query is failed" . mysqli_error($con));
+
+         if ($rowsl = mysqli_fetch_row($resultselects) == true) {
+             $querycheckcount3 = "SELECT COUNT(registrationId) FROM useraccount WHERE groupId = '$row[0]'";
+             $resultcheckcount3 = mysqli_query($con, $querycheckcount3) or die ("query is failed" . mysqli_error($con));
+             if ($rowcount3 = mysqli_fetch_row($resultcheckcount3)) {
+                 if ($rowcount3[0] < $rowsl[0]) {
+
+                 }
+
+             }
 
 
-    /*
-                                $queryselectall = "SELECT groupId FROM groupinfo";
-                                $resultselectall = mysqli_query($con, $queryselectall) or die ("query is failed" . mysqli_error($con));
-                                while ($rows = mysqli_fetch_row($resultselectall)) {
-
-                                    echo "tatatatatatta $rows[0] <br><br>";
-                                    if ($rows[0] == $GroupId) {
-                                        $GroupId = $GroupId + 1;
-                                        echo "lalaalallalalalalala $GroupId <br><br>";
-
-                                    }
-                                }
-                                $queryi = "Insert Into groupinfo Values('$GroupId', NULL)";
-                                $resulti = mysqli_query($con, $queryi) or die ("query is failed" . mysqli_error($con));
-
-                                echo $OldGroupId;
-                                echo $GroupSize;
-
-                                echo "count: $rowa[0] <br>";
-                                $MemberMove = $rowa[0] - $GroupSize;
-                                echo "Moving member $MemberMove <br>";
+         }
 
 
-                                $querys = "SELECT registrationId FROM useraccount WHERE groupId = '$OldGroupId' LIMIT $MemberMove";
-                                $selects = mysqli_query($con, $querys) or die ("query is failed blah blah" . mysqli_error($con));
-                                while ($row = mysqli_fetch_row($selects)) {
-                                    echo $row[0];
-                                    $queryu = "UPDATE useraccount SET groupId = '$GroupId' WHERE registrationId = '$row[0]'";
-                                    $resultu = mysqli_query($con, $queryu) or die ("query is failed" . mysqli_error($con));
-                                    if (mysqli_affected_rows($con) > 0) {
-                                        echo "test Group Id: $GroupId";
-                                        echo "test Registration ID $row[0]";
-                                        $alertupdated = "You have updated tt " . mysqli_affected_rows($con) . " row";
-                                        echo "<script> alert ('$alertupdated');</script>";
-                                    } else {
-                                        echo "<script> alert('You have not updated any rows tt');</script>";
-                                    }
+
+     }
 
 
-                                }*/
+
+
+
+
+
+ }
 
 
     /*else {
@@ -272,7 +257,7 @@ if (isset($_POST['UPDATE'])) {
                 echo "Final: $GroupId <br><br><br>";
 
 
-            }*/
+            }
 
 
     $GroupSize = !empty($GroupSize) ? "'$GroupSize'" : "NULL";
