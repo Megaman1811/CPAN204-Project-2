@@ -95,25 +95,24 @@ if (isset($_POST['INSERT'])) {
         $result_status_count = mysqli_query($con, $query_status_count) or die ("query is failed2" . mysqli_error($con));
         if ($row_status_count = mysqli_fetch_row($result_status_count)) {
             $ava = $row_status_size[0] - $row_status_count[0];
-                if (($ava > 1) || (empty($row_status_size[0]))) {
-                    $status = "Not Confirmed";
-                } else {
-                    $status = "Confirmed";
-                    $query_status_id1 = "SELECT registrationId FROM useraccount WHERE groupId = '$GroupId'";
-                    $result_status_id1 = mysqli_query($con, $query_status_id1) or die ("query is failed" . mysqli_error($con));
-                    while ($row_status_id1 = mysqli_fetch_row($result_status_id1)) {
-                        $query_status_update_no1 = "UPDATE useraccount SET status = 'Confirmed' WHERE registrationId = '$row_status_id1[0]'";
-                        $result_status_update_no1 = mysqli_query($con, $query_status_update_no1) or die ("query is failed" . mysqli_error($con));
-                        if (mysqli_affected_rows($con) > 0) {
-                            echo "update successful status";
-                        } else {
-                            echo "update failed";
-                        }
+            if (($ava > 1) || (empty($row_status_size[0]))) {
+                $status = "Not Confirmed";
+            } else {
+                $status = "Confirmed";
+                $query_status_id1 = "SELECT registrationId FROM useraccount WHERE groupId = '$GroupId'";
+                $result_status_id1 = mysqli_query($con, $query_status_id1) or die ("query is failed" . mysqli_error($con));
+                while ($row_status_id1 = mysqli_fetch_row($result_status_id1)) {
+                    $query_status_update_no1 = "UPDATE useraccount SET status = 'Confirmed' WHERE registrationId = '$row_status_id1[0]'";
+                    $result_status_update_no1 = mysqli_query($con, $query_status_update_no1) or die ("query is failed" . mysqli_error($con));
+                    if (mysqli_affected_rows($con) > 0) {
+                        echo "update successful status";
+                    } else {
+                        echo "update failed";
+                    }
                 }
             }
         }
-    }
-    else {
+    } else {
         $status = "Not Confirmed";
     }
     echo $status;
@@ -133,7 +132,8 @@ if (isset($_POST['INSERT'])) {
         $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
         if (($row = mysqli_fetch_row($result)) == true) {
             $RegistrationId = $row[0];
-            echo "<script> alert ('$RegistrationId');</script>";
+            echo "<script> alert ('Your registration ID is $RegistrationId. Please keep this number handy for ' +
+            'logging in after registration');</script>";
         } else {
             echo "<script> alert ('You have not inserted any rows');</script>";
         }
