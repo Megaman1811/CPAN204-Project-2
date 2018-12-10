@@ -63,11 +63,8 @@ session_unset();
 //Start session
 session_start();
 
-if (!empty($_SESSION['message'])) {
-    $message = $_SESSION['message'];
-    echo "<script type='text/javascript'>alert('$message');</script>";
-    session_destroy();
-}
+
+
 
 if (isset($_POST['email']) & isset($_POST['registrationId'])) {
 
@@ -95,7 +92,7 @@ if (mysqli_num_rows($result) == 0) {
     if (($Email == "admin@gmail.com") &&($RegistrationId == 2410))  {
         $_SESSION['User'] = 'Admin';
         $_SESSION['email'] = $Email;
-        header('location:FormGroupPage.php');
+        header('location:AdminPage.php');
     }
         else {
 

@@ -59,7 +59,7 @@ $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($c
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Information Page</title>
+    <title>Incident Reports Management</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
           crossorigin="anonymous">
@@ -81,7 +81,18 @@ $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($c
           rel="stylesheet"/>
 </head>
 <body>
-<h1>User Information Page</h1>
+<div class="card-header">
+    <h4><b>User Information Page</b></h4>
+    <ul class="nav nav-pills card-header-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="UserInfoPage.php">User Information Page </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Login.php">Log out</a>
+        </li>
+    </ul>
+</div>
+
 <?php
 $query = "Select * from useraccount where email = '$Email' ";
 $result = mysqli_query($con, $query) or die ("query is failed" . mysqli_error($con));
@@ -122,3 +133,7 @@ echo "</table><br><br>";
 </form>
 </body>
 </html>
+<?php
+//Close connection
+mysqli_close($con);
+?>
