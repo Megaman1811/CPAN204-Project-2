@@ -1,5 +1,5 @@
 <?php
-//Making sure that the current user is an admin by using session
+//Making sure that current user is an admin by using session
 session_start();
 if (!isset($_SESSION["User"])) {
     header('location:Login.php');
@@ -13,12 +13,12 @@ if ($_SESSION["User"] != "Admin") {
 $host = "localhost";
 $user = "root";
 $password = "";
-$dbName = "travel_project";
+$dbName = "id8150395_cpan204";
 
 // Get session Email from Login page
 $Email = $_SESSION['email'];
 
-//Connect to server + select DB
+//Connect to database server
 $con = mysqli_connect($host, $user, $password, $dbName)
 or die("Connection is failed");
 
@@ -32,7 +32,7 @@ if (isset($_POST['email']))
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Incident Reports Management</title>
+    <title>Admin Page</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
           crossorigin="anonymous">
@@ -55,7 +55,7 @@ if (isset($_POST['email']))
 </head>
 <div class="card-header">
 
-    <h5>Admin Page</h5>
+    <h2>Admin Page</h2>
     <ul class="nav nav-pills card-header-tabs">
         <li class="nav-item">
             <a class="nav-link active" href="Admin_Page.php">Admin</a>
@@ -67,7 +67,10 @@ if (isset($_POST['email']))
             <a class="nav-link " href="FormGroupPage.php">Group Management</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="Login.php">Log out</a>
+            <a class="nav-link " href="TourManagementPage.php">Group Management</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="login.php">Log out</a>
         </li>
     </ul>
 </div>
@@ -79,7 +82,8 @@ if (isset($_POST['email']))
             <div class="form-inline">
             </div>
         </form>
-        <a href="UserInfoPageAdmin.php" class="btn btn-primary">User Information Management</a>
+        <a href="TourManagementPage.php" class="btn btn-primary">Tour Management</a>
+        <a href="UserInfoPageAdmin.php" class="btn btn-success">User Information Management</a>
         <a href="FormGroupPage.php" class="btn btn-warning">Group Management</a>
     </div>
 </div>
